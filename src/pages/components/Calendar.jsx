@@ -27,8 +27,6 @@ export default function Calendar() {
     }
   );
 
-  console.log(currentMonthString);
-
   const handleClick = (clickedDay) => {
     const isSelected = selectedDays.some(
       (selectedDay) => selectedDay === clickedDay
@@ -72,7 +70,6 @@ export default function Calendar() {
 
   const onChangeMonth = (e) => {
     const selectedMonthIndex = MONTHS.indexOf(e.target.value);
-    // console.log(e.target.value);
     if (selectedMonthIndex !== -1) {
       setMonth(selectedMonthIndex + 1);
     }
