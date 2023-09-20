@@ -137,7 +137,7 @@ export default function Calendar() {
             }
             ${
               selectedDays.some((day) => day === calendarDay.value) &&
-              !calendarDay.disabled
+              calendarDay.month === currentMonthString
                 ? "bg-red-300 text-neutral-600"
                 : ""
             }
