@@ -1,108 +1,48 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
-
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-const daysOfWeek = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-
-const YEARS = Array.from({ length: 2060 - 1960 }, (_, i) => i + 1960 );
+import {
+  MONTHS,
+  daysOfWeek,
+  YEARS,
+  renderCalendar,
+  checkDisabled,
+} from "../utils/utils";
 
 export default function Calendar() {
   const today = new Date();
   const [date, setDate] = useState(today.getDate());
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
-  const [selectedDays, setSelectedDays] = useState([])
-
-  const totalDaysOfPrevMonth = new Date(year, month - 1, 0).getDate();
-  const totalDaysOfCurrMonth = new Date(year, month, 0).getDate();
-
-  const currentMonth = useMemo(
-    () =>
-      Array.from({ length: totalDaysOfCurrMonth }, (_, i) => {
-        const daysOfCurrentMonth = i + 1;
-        const valueOfCurrentMonth = new Date(
-          year,
-          month - 1,
-          daysOfCurrentMonth
-        );
-        return {
-          label: daysOfCurrentMonth,
-          value: valueOfCurrentMonth,
-          disabled: false,
-          selected: selectedDays.includes(valueOfCurrentMonth),
-        };
-      }),
-    [year, month]
-  );
-
-  const firstDay = useMemo(
-    () => new Date(year, month - 1, 1).getDay(),
-    [year, month]
-  );
-
-  const prevMonth = useMemo(
-    () =>
-      Array.from({ length: firstDay }, (_, i) => {
-        const daysOfPrevMonth = totalDaysOfPrevMonth - firstDay + i + 1;
-        const valueOfPrevMonth = new Date(year, month - 2, daysOfPrevMonth);
-        return {
-          label: daysOfPrevMonth,
-          value: valueOfPrevMonth,
-          disabled: true,
-          selected: selectedDays.includes(valueOfPrevMonth),
-        };
-      }),
-    [year, month]
-  );
-
-  const nextMonth = useMemo(
-    () =>
-      Array.from(
-        { length: 42 - currentMonth.length - prevMonth.length },
-        (_, i) => {
-          const daysOfNextMonth = i + 1;
-          const valueOfNextMonth = new Date(year, month, daysOfNextMonth);
-          return {
-            label: daysOfNextMonth,
-            value: valueOfNextMonth,
-            disabled: true,
-            selected: selectedDays.includes(valueOfNextMonth),
-          };
-        }
-      ),
-    [year, month]
-  );
+  const [selectedDays, setSelectedDays] = useState([]);
 
   const calendarDays = useMemo(
-    () => [...prevMonth, ...currentMonth, ...nextMonth],
+    () => renderCalendar(month, year),
     [year, month]
   );
 
-  // const handleClick = (clickedDay) => {
-  //   const isClicked = selectedDays.indexOf(clickedDay);
-  //   if (isClicked) {
-  //     const updatedSelectedDays = selectedDays.filter(
-  //       (selectedDay) => selectedDay.getTime() !== clickedDay.getTime()
-  //     );
-  //     setSelectedDays(updatedSelectedDays);
-  //   } else {
-  //     setSelectedDays([...selectedDays, clickedDay]);
-  //   }
-  // };
+  const currentMonthString = new Date(year, month - 1).toLocaleString(
+    "default",
+    {
+      month: "short",
+    }
+  );
+
+  console.log(currentMonthString);
+
+  const handleClick = (clickedDay) => {
+    const isSelected = selectedDays.some(
+      (selectedDay) => selectedDay === clickedDay
+    );
+
+    if (isSelected) {
+      const updatedSelectedDays = selectedDays.filter(
+        (day) => day !== clickedDay
+      );
+      setSelectedDays(updatedSelectedDays);
+    } else {
+      setSelectedDays([...selectedDays, clickedDay]);
+    }
+  };
 
   const onPrevMonth = () => {
     let newMonth = month - 1;
@@ -132,6 +72,7 @@ export default function Calendar() {
 
   const onChangeMonth = (e) => {
     const selectedMonthIndex = MONTHS.indexOf(e.target.value);
+    // console.log(e.target.value);
     if (selectedMonthIndex !== -1) {
       setMonth(selectedMonthIndex + 1);
     }
@@ -139,17 +80,20 @@ export default function Calendar() {
 
   const onChangeYear = (e) => {
     const selectedYear = parseInt(e.target.value, 10);
+    console.log(selectedYear);
     setYear(selectedYear);
   };
 
   return (
     <div className="w-[700px] flex flex-col justify-center text-center align-center border rounded-lg">
       <div className="flex flex-row justify-center items-center p-5">
-        <AiOutlineLeft size={18} className="" onClick={onPrevMonth} />
+        <AiOutlineLeft
+          size={18}
+          className="cursor-pointer"
+          onClick={onPrevMonth}
+        />
         <select
-          name=""
-          id=""
-          className="rounded-md border  bg-slate-100 p-2 mr-2 ml-4"
+          className="rounded-md border bg-slate-100 p-2 mr-2 ml-4 cursor-pointer"
           value={MONTHS[month - 1]}
           onChange={onChangeMonth}
         >
@@ -160,9 +104,7 @@ export default function Calendar() {
           ))}
         </select>
         <select
-          name=""
-          id=""
-          className="rounded-md border  bg-slate-100 p-2 mr-4 ml-2 "
+          className="rounded-md border bg-slate-100 p-2 mr-4 ml-2 cursor-pointer"
           value={year}
           onChange={onChangeYear}
         >
@@ -172,13 +114,17 @@ export default function Calendar() {
             </option>
           ))}
         </select>
-        <AiOutlineRight size={18} className="" onClick={onNextMonth} />
+        <AiOutlineRight
+          size={18}
+          className="cursor-pointer"
+          onClick={onNextMonth}
+        />
       </div>
 
       <div className="grid grid-cols-7 justify-evenly text-center items-center p-3 ">
         {daysOfWeek.map((day, index) => (
           <div key={index} className="font-bold">
-            {day}{" "}
+            {day}
           </div>
         ))}
       </div>
@@ -187,10 +133,19 @@ export default function Calendar() {
         {calendarDays.map((calendarDay, index) => (
           <div
             key={index}
-            className={`border rounded-lg ${
-              calendarDay.disabled ? "text-neutral-400" : "text-neutral-600"
-            } `}
-            // onClick={handleClick(calendarDay.value)}
+            className={`border rounded-lg cursor-pointer ${
+              calendarDay.month === currentMonthString
+                ? "text-neutral-600"
+                : "text-neutral-400 cursor-not-allowed"
+            }
+            ${
+              selectedDays.some((day) => day === calendarDay.value) &&
+              !calendarDay.disabled
+                ? "bg-red-300 text-neutral-600"
+                : ""
+            }
+            `}
+            onClick={() => handleClick(calendarDay.value)}
           >
             {calendarDay.label}
           </div>
