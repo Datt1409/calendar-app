@@ -1,15 +1,17 @@
 import { useMemo, useState } from "react";
 import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
 import {
-  MONTHS,
   daysOfWeek,
   YEARS,
   renderCalendar,
   compareMonth,
+  getLocalizeMonth,
+  getLocalizedDay,
 } from "../utils";
 
-export default function Calendar() {
+export default function Calendar({ isMultiple = true, locale = "en-US" }) {
   const today = new Date();
+  const date = today.getDate();
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
   const [selectedDays, setSelectedDays] = useState([]);
@@ -19,18 +21,39 @@ export default function Calendar() {
     [year, month]
   );
 
-  const handleClick = (clickedDay) => {
-    const isSelected = selectedDays.some(
-      (selectedDay) => selectedDay === clickedDay
-    );
+  const localizedMonths = useMemo(
+    () => getLocalizeMonth(year, locale),
+    [year, locale]
+  );
 
-    if (isSelected) {
-      const updatedSelectedDays = selectedDays.filter(
-        (day) => day !== clickedDay
+  const localizedDays = useMemo(
+    () => getLocalizedDay(year, month, locale),
+    [locale]
+  );
+
+  const handleClick = (clickedDay) => {
+    if (isMultiple) {
+      const isSelected = selectedDays.some(
+        (selectedDay) => selectedDay === clickedDay
       );
-      setSelectedDays(updatedSelectedDays);
+      if (isSelected) {
+        const updatedSelectedDays = selectedDays.filter(
+          (day) => day !== clickedDay
+        );
+        setSelectedDays(updatedSelectedDays);
+      } else {
+        setSelectedDays([...selectedDays, clickedDay]);
+      }
     } else {
-      setSelectedDays([...selectedDays, clickedDay]);
+      const isSelected = selectedDays.includes(clickedDay);
+      if (isSelected) {
+        const updatedSelectedDays = selectedDays.filter(
+          (day) => day !== clickedDay
+        );
+        setSelectedDays(updatedSelectedDays);
+      } else {
+        setSelectedDays([clickedDay]);
+      }
     }
   };
 
@@ -61,7 +84,7 @@ export default function Calendar() {
   };
 
   const onChangeMonth = (e) => {
-    const selectedMonthIndex = MONTHS.indexOf(e.target.value);
+    const selectedMonthIndex = localizedMonths.indexOf(e.target.value);
     if (selectedMonthIndex !== -1) {
       setMonth(selectedMonthIndex + 1);
     }
@@ -75,6 +98,10 @@ export default function Calendar() {
 
   return (
     <div className="w-[700px] flex flex-col justify-center text-center align-center border rounded-lg">
+      <div className="flex flex-row justify-center text-center items-center p-5 text-3xl font-bold">
+        {month} / {year}
+      </div>
+
       <div className="flex flex-row justify-center items-center p-5">
         <AiOutlineLeft
           size={18}
@@ -83,12 +110,12 @@ export default function Calendar() {
         />
         <select
           className="rounded-md border bg-slate-100 p-2 mr-2 ml-4 cursor-pointer"
-          value={MONTHS[month - 1]}
+          value={localizedMonths[month - 1]}
           onChange={onChangeMonth}
         >
-          {MONTHS.map((month, index) => (
-            <option key={index} value={month}>
-              {month}
+          {localizedMonths.map((localizedMonth, index) => (
+            <option key={index} value={localizedMonth}>
+              {localizedMonth}
             </option>
           ))}
         </select>
@@ -111,9 +138,9 @@ export default function Calendar() {
       </div>
 
       <div className="grid grid-cols-7 text-center items-center p-4">
-        {daysOfWeek.map((day, index) => (
+        {localizedDays.map((localizedDay, index) => (
           <div key={index} className="font-bold">
-            {day}
+            {localizedDay}
           </div>
         ))}
       </div>
@@ -122,8 +149,16 @@ export default function Calendar() {
         {calendarDays.map((calendarDay, index) => (
           <div
             key={index}
-            className={`flex justify-center items-center h-10 w-10 text-center ml-7 mb-2 rounded-full cursor-pointer 
+            className={`flex justify-center items-center h-10 w-10 text-center ml-7 mb-2 rounded-full cursor-pointer
             ${
+              isMultiple &&
+              selectedDays.some((day) => day === calendarDay.value) &&
+              compareMonth(calendarDay.value, month)
+                ? "bg-blue-500 text-white"
+                : ""
+            } 
+            ${
+              !isMultiple &&
               selectedDays.some((day) => day === calendarDay.value) &&
               compareMonth(calendarDay.value, month)
                 ? "bg-blue-500 text-white"
@@ -132,8 +167,9 @@ export default function Calendar() {
             ${
               compareMonth(calendarDay.value, month)
                 ? "text-neutral-600 hover:bg-gray-300 hover:text-white"
-                : "text-neutral-400 cursor-not-allowed"
+                : "text-neutral-400"
             }
+           
             `}
             onClick={() => handleClick(calendarDay.value)}
           >
