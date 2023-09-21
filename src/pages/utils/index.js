@@ -1,5 +1,3 @@
-import { useMemo } from "react";
-
 export const MONTHS = [
   "January",
   "February",
@@ -27,26 +25,18 @@ export const renderCalendar = (month, year) => {
   const currentMonth = Array.from({ length: totalDaysOfCurrMonth }, (_, i) => {
     const daysOfCurrentMonth = i + 1;
     const valueOfCurrentMonth = new Date(year, month - 1, daysOfCurrentMonth);
-    const monthString = valueOfCurrentMonth.toLocaleString("default", {
-      month: "short",
-    });
     return {
       label: daysOfCurrentMonth,
       value: valueOfCurrentMonth,
-      month: monthString,
     };
   });
 
   const prevMonth = Array.from({ length: firstDayOfCurrMonth }, (_, i) => {
     const daysOfPrevMonth = totalDaysOfPrevMonth - firstDayOfCurrMonth + i + 1;
     const valueOfPrevMonth = new Date(year, month - 2, daysOfPrevMonth);
-    const monthString = valueOfPrevMonth.toLocaleString("default", {
-      month: "short",
-    });
     return {
       label: daysOfPrevMonth,
       value: valueOfPrevMonth,
-      month: monthString,
     };
   });
 
@@ -55,18 +45,16 @@ export const renderCalendar = (month, year) => {
     (_, i) => {
       const daysOfNextMonth = i + 1;
       const valueOfNextMonth = new Date(year, month, daysOfNextMonth);
-      const monthString = valueOfNextMonth.toLocaleString("default", {
-        month: "short",
-      });
       return {
         label: daysOfNextMonth,
         value: valueOfNextMonth,
-        month: monthString,
       };
     }
   );
 
-  const calendars = [...prevMonth, ...currentMonth, ...nextMonth];
+  return [...prevMonth, ...currentMonth, ...nextMonth];
+};
 
-  return calendars;
+export const compareMonth = (value, month) => {
+  return value.getMonth() + 1 === month;
 };

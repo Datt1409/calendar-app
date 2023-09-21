@@ -1,16 +1,15 @@
-import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
 import {
   MONTHS,
   daysOfWeek,
   YEARS,
   renderCalendar,
-  checkDisabled,
-} from "../utils/utils";
+  compareMonth,
+} from "../utils";
 
 export default function Calendar() {
   const today = new Date();
-  const [date, setDate] = useState(today.getDate());
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
   const [selectedDays, setSelectedDays] = useState([]);
@@ -18,13 +17,6 @@ export default function Calendar() {
   const calendarDays = useMemo(
     () => renderCalendar(month, year),
     [year, month]
-  );
-
-  const currentMonthString = new Date(year, month - 1).toLocaleString(
-    "default",
-    {
-      month: "short",
-    }
   );
 
   const handleClick = (clickedDay) => {
@@ -130,16 +122,17 @@ export default function Calendar() {
         {calendarDays.map((calendarDay, index) => (
           <div
             key={index}
-            className={`border rounded-lg cursor-pointer ${
-              calendarDay.month === currentMonthString
-                ? "text-neutral-600"
-                : "text-neutral-400 cursor-not-allowed"
-            }
+            className={`border rounded-lg cursor-pointer 
             ${
               selectedDays.some((day) => day === calendarDay.value) &&
-              calendarDay.month === currentMonthString
+              compareMonth(calendarDay.value, month)
                 ? "bg-red-300 text-neutral-600"
                 : ""
+            }
+            ${
+              compareMonth(calendarDay.value, month)
+                ? "text-neutral-600"
+                : "text-neutral-400 cursor-not-allowed"
             }
             `}
             onClick={() => handleClick(calendarDay.value)}
