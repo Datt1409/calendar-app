@@ -131,7 +131,7 @@ export default function Calendar() {
             }
             ${
               compareMonth(calendarDay.value, month)
-                ? "text-neutral-600"
+                ? "text-neutral-600 hover:bg-gray-300 hover:text-white"
                 : "text-neutral-400 cursor-not-allowed"
             }
             `}
