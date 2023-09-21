@@ -110,7 +110,7 @@ export default function Calendar() {
         />
       </div>
 
-      <div className="grid grid-cols-7 justify-evenly text-center items-center p-3 ">
+      <div className="grid grid-cols-7 text-center items-center p-4">
         {daysOfWeek.map((day, index) => (
           <div key={index} className="font-bold">
             {day}
@@ -118,15 +118,15 @@ export default function Calendar() {
         ))}
       </div>
 
-      <div className="grid grid-cols-7 text-center p-4 gap-[10px]">
+      <div className="grid grid-cols-7 text-center p-4">
         {calendarDays.map((calendarDay, index) => (
           <div
             key={index}
-            className={`border rounded-lg cursor-pointer 
+            className={`flex justify-center items-center h-10 w-10 text-center ml-7 mb-2 rounded-full cursor-pointer 
             ${
               selectedDays.some((day) => day === calendarDay.value) &&
               compareMonth(calendarDay.value, month)
-                ? "bg-red-300 text-neutral-600"
+                ? "bg-blue-500 text-white"
                 : ""
             }
             ${
