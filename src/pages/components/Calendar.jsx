@@ -9,9 +9,12 @@ import {
   getLocalizedDay,
 } from "../utils";
 
-export default function Calendar({ isMultiple = true, locale = "en-US" }) {
+export default function Calendar({
+  isMultiple = true,
+  locale = "en-US",
+  onChooseDate,
+}) {
   const today = new Date();
-  const date = today.getDate();
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
   const [selectedDays, setSelectedDays] = useState([]);
@@ -53,6 +56,7 @@ export default function Calendar({ isMultiple = true, locale = "en-US" }) {
         setSelectedDays(updatedSelectedDays);
       } else {
         setSelectedDays([clickedDay]);
+        onChooseDate(clickedDay);
       }
     }
   };
@@ -97,10 +101,8 @@ export default function Calendar({ isMultiple = true, locale = "en-US" }) {
   };
 
   return (
-    <div className="w-[700px] flex flex-col justify-center text-center align-center border rounded-lg">
-      <div className="flex flex-row justify-center text-center items-center p-5 text-3xl font-bold">
-        {month} / {year}
-      </div>
+    <div className="w-[384px] h-[400px] p-2 flex flex-col justify-center text-center align-center border rounded-lg ml-10">
+      {/* <div className="flex flex-row justify-center text-center items-center p-5 text-3xl font-bold"></div> */}
 
       <div className="flex flex-row justify-center items-center p-5">
         <AiOutlineLeft
@@ -137,7 +139,7 @@ export default function Calendar({ isMultiple = true, locale = "en-US" }) {
         />
       </div>
 
-      <div className="grid grid-cols-7 text-center items-center p-4">
+      <div className="grid grid-cols-7 text-center items-center mb-2">
         {localizedDays.map((localizedDay, index) => (
           <div key={index} className="font-bold">
             {localizedDay}
@@ -145,11 +147,11 @@ export default function Calendar({ isMultiple = true, locale = "en-US" }) {
         ))}
       </div>
 
-      <div className="grid grid-cols-7 text-center p-4">
+      <div className="grid grid-cols-7 text-center">
         {calendarDays.map((calendarDay, index) => (
           <div
             key={index}
-            className={`flex justify-center items-center h-10 w-10 text-center ml-7 mb-2 rounded-full cursor-pointer
+            className={`flex justify-center items-center h-10 w-10 text-center ml-2 mb-2 rounded-full cursor-pointer
             ${
               isMultiple &&
               selectedDays.some((day) => day === calendarDay.value) &&
