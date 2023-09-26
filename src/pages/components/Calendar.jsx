@@ -21,8 +21,6 @@ export default function Calendar({
   const [year, setYear] = useState(today.getFullYear());
   const [selectedDays, setSelectedDays] = useState([]);
 
-  console.log(showCalendar);
-
   const calendarDays = useMemo(
     () => renderCalendar(month, year),
     [year, month]
@@ -103,7 +101,7 @@ export default function Calendar({
 
   return (
     <>
-      <div className="w-[384px] h-[400px] p-2 flex flex-col justify-center text-center align-center border rounded-lg ml-10 z-10">
+      <div className="w-[384px] h-[400px] p-2 flex flex-col justify-center text-center align-center border rounded-lg ml-10 mt-12 z-10 fixed">
         <div className="flex flex-row justify-center items-center p-5">
           <AiOutlineLeft
             size={18}
